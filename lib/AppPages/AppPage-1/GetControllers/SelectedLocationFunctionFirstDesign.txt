@@ -1,0 +1,49 @@
+  void getPlaceDetails(String placeID, int index) async {
+    //the getPlaceDetails function takes a placeID of type string
+    //and uses the url provided in the google maps places api to
+    //get response in json format about the selected locations placeDetails
+    //using placeID ( it takes as an argument in the url ),
+    //and assign them to an instance of PlaceDetails class.
+
+    if (index == 1) {
+      pickupAssigned = true;
+    }
+    if (index == 2) {
+      destinationAssigned = true;
+    }
+
+    // url to get place details of the selected location.
+    String url =
+        "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeID&fields=name,rating,formatted_phone_number&key=$mapKey";
+
+    //requesting and waiting for the http request to complete .
+    var response = await http.get(url);
+
+    // decoding the json recieved from the above request and setting its body ( that is the response json we actually need ) to response data.
+    var responseData = jsonDecode(response.body);
+
+    // if the response is not succesful return .
+    if (responseData == "failed") {
+      return;
+    }
+
+    // if the responseData staus is OK , then go on with further instructions .
+    if (responseData["status"] == "OK") {
+      //initializing a custom class which recieves lat , lng as doubles.
+      PlaceDetails selectedCoordinates = PlaceDetails();
+
+      //stores latitude , longitude and placeName from json response into the instance slectedCoordinates of class PlaceDetails.
+      selectedCoordinates.lat = responseData["geometry"]["location"]["lat"];
+      selectedCoordinates.lng = responseData["geometry"]["location"]["lng"];
+      selectedCoordinates.placeName = responseData['result']['name'];
+      selectedCoordinates.placeID = placeID;
+
+      //this calls the detailsSetter function.
+      detailsSetter(selectedCoordinates);
+
+      if (destinationAssigned == true && pickupAssigned == true) {
+        // navigateToTheNextStackItem();
+
+      }
+    }
+  }
